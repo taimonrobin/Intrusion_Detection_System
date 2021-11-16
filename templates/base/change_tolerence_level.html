@@ -1,0 +1,20 @@
+{% extends 'partials/main.html' %}
+{% block title %}Dashboard{% endblock %}
+
+{% block change_tolerence_level %}
+{% load crispy_forms_tags %}
+
+<form action="../change_tolerence_level/{{address}}" method="POST">{% csrf_token %}
+  {{ form|crispy }}
+  <button type="submit" class="btn btn-success">Change</button>
+  {% if messages %}
+  <ul class="messages">
+      {% for message in messages %}
+      <li  {% if message.tags %} class=" {{ message.tags }} " {% endif %}> {{ message }} </li>
+      {% endfor %}
+  </ul>
+{% endif %}
+</form>
+
+{% endblock %}
+

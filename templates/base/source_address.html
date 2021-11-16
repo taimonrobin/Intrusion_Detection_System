@@ -1,0 +1,275 @@
+{% extends 'partials/main.html' %}
+{% block title %}Dashboard{% endblock %}
+
+
+
+{% block chart_title_1%}
+Source address {{address}} instances from {{from_time}} to {{to_time}}
+{% endblock %}
+
+
+{% block current_data %}
+
+<div class="chart-container" style="position: relative; height: 325px; ">
+    <canvas id="myChart"></canvas>
+</div>
+
+
+<script>
+    var s1 = {
+  label: '{{address}}',
+  borderColor: 'rgb(75, 192, 192)',
+  data: {{list_of_y|safe}},
+};
+
+
+var ctx = document.getElementById('myChart').getContext('2d');
+var chart = new Chart(ctx, {
+  type: 'line',
+  data: { 
+    datasets: [s1],
+  },
+  options: {
+    maintainAspectRatio: false,
+    flexible: true,
+    scales: {
+      xAxes: [{
+        type: 'time'
+      }]
+    }
+  }
+});
+</script>
+
+{% endblock %}
+
+
+
+
+{% block chart_title_2%}
+Prediction with Facebook Prophet from {{from_time}} to {{to_time}}
+{% endblock %}
+
+
+{% block prophet_predicted %}
+
+<div class="chart-container" style="position: relative; height: 325px; ">
+    <canvas id="myChart2"></canvas>
+</div>
+
+
+<script>
+    var s1 = {
+  label: '{{address}}',
+  borderColor: 'rgb(75, 192, 192)',
+  data: {{list_of_y|safe}},
+};
+
+var s2 = {
+  label: 'yhat',
+  borderColor: 'rgba(255, 99, 132, 1)',
+  data: {{list_of_yhat|safe}},
+};
+
+var s3 = {
+  label: 'yhat_upper',
+  borderColor: 'rgba(54, 162, 235, 1)',
+  data: {{list_of_yhat_upper|safe}},
+};
+
+var s4 = {
+  label: 'yhat_lower',
+  borderColor: 'rgba(255, 206, 86, 1)',
+  data: {{list_of_yhat_lower|safe}},
+};
+
+var ctx = document.getElementById('myChart2').getContext('2d');
+var chart = new Chart(ctx, {
+  type: 'line',
+  data: { 
+    datasets: [s1, s2, s3, s4],
+  },
+  options: {
+    maintainAspectRatio: false,
+    flexible: true,
+    scales: {
+      xAxes: [{
+        type: 'time'
+      }]
+    }
+  }
+});
+</script>
+
+{% endblock %}
+
+{% block result_1 %}
+
+<div class="chart-container" style="position: relative; height: 325px; ">
+    <canvas id="result1"></canvas>
+</div>
+
+
+<script>
+var s1 = {
+  label: '{{address}}',
+  borderColor: 'green',
+  backgroundColor: 'rgba(54, 162, 235, 1)',
+  data: {{list_of_good_data|safe}},
+};
+
+var s2 = {
+  label: 'anomaly',
+  borderColor: 'red',
+  backgroundColor: 'rgba(255, 99, 132, 1)',
+  data: {{list_of_bad_data|safe}},
+};
+
+
+var ctx = document.getElementById('result1').getContext('2d');
+var chart = new Chart(ctx, {
+  type: 'scatter',
+  data: { 
+    datasets: [s1, s2],
+  },
+  options: {
+    maintainAspectRatio: false,
+    flexible: true,
+    scales: {
+      xAxes: [{
+        type: 'time'
+      }]
+    }
+  }
+});
+
+
+</script>
+
+{% endblock %}
+
+
+{% block chart_title_3%}
+Anomaly Detection is done with Tolerence Level of {{tolerence_level}}. It can be changed by clicking settings button
+{% endblock %}
+
+{% block chart_title_5%}
+  Boxplot using data from {{from_time}} to {{to_time}} 
+{% endblock %}
+
+
+{% block box_plot %}
+<style>
+    
+</style>
+<script src="https://unpkg.com/chart.js@3"></script>
+<script src="https://unpkg.com/@sgratzl/chartjs-chart-boxplot@3"></script>
+<div>
+    <canvas id="box_plot"></canvas>
+</div>
+
+<script>
+function randomValues(count, min, max) {
+  const delta = max - min;
+  return Array.from({length: count}).map(() => Math.random() * delta + min);
+}
+
+const boxplotData = {
+  // define label tree
+  labels: ['','','{{address}}','',''],
+  datasets: [{
+    label: '{{address}}',
+    backgroundColor: 'rgba(255,0,0,0.5)',
+    borderColor: 'red',
+    borderWidth: 1,
+    outlierColor: '#999999',
+    padding: 10,
+    itemRadius: 0,
+    data: [
+      [],[],
+      {{list_of_boxplot|safe}},
+    ]
+  }]
+};
+window.onload = () => {
+  const ctx = document.getElementById("box_plot").getContext("2d");
+  window.myBar = new Chart(ctx, {
+    type: 'boxplot',
+    data: boxplotData,
+    options: {
+      responsive: true,
+      legend: {
+        position: 'top',
+      },
+      title: {
+        display: true,
+        text: 'Chart.js Box Plot Chart'
+      }
+    }
+  });
+};
+</script>
+
+{% endblock %}
+
+
+{% block chart_title_6%}
+  Histogram using data from {{from_time}} to {{to_time}} 
+{% endblock %}
+
+{% block histogram %}
+<canvas id="histogram"></canvas>
+<script>
+  var ctx = document.getElementById("histogram").getContext('2d');
+var dataValues = {{list_of_unique_y_instance|safe}};
+var dataLabels = {{list_of_unique_y|safe}};
+var myChart = new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: dataLabels,
+    datasets: [{
+      label: '{{address}}',
+      data: dataValues,
+      backgroundColor: 'rgb(75, 192, 192)',
+    }]
+  },
+  options: {
+    scales: {
+      xAxes: [{
+        display: false,
+        barPercentage: 1.3,
+        ticks: {
+            max: 3,
+        }
+     }, {
+        display: true,
+        ticks: {
+            autoSkip: false,
+            max: 4,
+        }
+      }],
+      yAxes: [{
+        ticks: {
+          beginAtZero:true
+        }
+      }]
+    }
+  }
+});
+</script>
+
+{% endblock %}
+
+
+
+
+{% block style %}
+
+<style>
+  canvas { max-height: 325px; }
+</style>
+
+
+{% endblock %}
+
+
